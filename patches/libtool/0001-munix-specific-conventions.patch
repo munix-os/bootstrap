@@ -1,0 +1,59 @@
+From 15d2d4bc0f5a95ccbb0e2f6a1c1a904cf12e2216 Mon Sep 17 00:00:00 2001
+From: cleanbaja <cleanbaja@protonmail.com>
+Date: Tue, 28 Feb 2023 16:55:46 +0000
+Subject: [PATCH] munix specific conventions
+
+---
+ build-aux/ltmain.in |  2 +-
+ m4/libtool.m4       | 15 +++++++++++++++
+ 2 files changed, 16 insertions(+), 1 deletion(-)
+
+diff --git a/build-aux/ltmain.in b/build-aux/ltmain.in
+index d5cf07a..ce97a5f 100644
+--- a/build-aux/ltmain.in
++++ b/build-aux/ltmain.in
+@@ -6449,7 +6449,7 @@ func_mode_link ()
+ 	      fi
+ 	    else
+ 	      # We cannot seem to hardcode it, guess we'll fake it.
+-	      add_dir=-L$libdir
++	      add_dir=-L$lt_sysroot$libdir
+ 	      # Try looking first in the location we're being installed to.
+ 	      if test -n "$inst_prefix_dir"; then
+ 		case $libdir in
+diff --git a/m4/libtool.m4 b/m4/libtool.m4
+index a3bc337..601e3db 100644
+--- a/m4/libtool.m4
++++ b/m4/libtool.m4
+@@ -2905,6 +2905,17 @@ netbsd*)
+   hardcode_into_libs=yes
+   ;;
+ 
++munix*)
++  version_type=linux # correct to gnu/linux during the next big refactor
++  need_lib_prefix=no
++  need_version=no
++  library_names_spec='$libname$release$shared_ext$versuffix $libname$release$shared_ext$major $libname$shared_ext'
++  soname_spec='$libname$release$shared_ext$major'
++  shlibpath_var=LD_LIBRARY_PATH
++  shlibpath_overrides_runpath=no
++  hardcode_into_libs=yes
++  ;;
++
+ newsos6)
+   version_type=linux # correct to gnu/linux during the next big refactor
+   library_names_spec='$libname$release$shared_ext$versuffix $libname$release$shared_ext$major $libname$shared_ext'
+@@ -3531,6 +3542,10 @@ interix[[3-9]]*)
+   lt_cv_deplibs_check_method='match_pattern /lib[[^/]]+(\.so|\.a)$'
+   ;;
+ 
++munix*)
++  lt_cv_deplibs_check_method=pass_all
++  ;;
++
+ irix5* | irix6* | nonstopux*)
+   case $LD in
+   *-32|*"-32 ") libmagic=32-bit;;
+-- 
+2.36.3
+
