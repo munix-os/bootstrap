@@ -22,11 +22,6 @@ sources:
 
   - name: libtool
     subdir: bundled
-    #url: 'https://ftp.gnu.org/gnu/libtool/libtool-2.4.6.tar.xz'
-    #format: 'tar.xz'
-    #checksum: 'blake2b:0865af9f8701ca9dc62eec8294a088d24f4a3ff541bc76acfe7b69f70637d7e8261a17d69f7d54a4177f974c429be68467883a1560edb539061966cbf7d4a356'
-    #extract_path: 'libtool-2.4.6'
-    #patch-path-strip: 1
     git: 'https://git.savannah.gnu.org/git/libtool.git'
     tag: 'v2.4.6'
     version: '2.4.6'
@@ -35,15 +30,19 @@ sources:
       - host-automake-v1.16
     regenerate:
       - args: ['git', 'submodule', 'update', '--init']
-      - args: ['./bootstrap'] # , '--skip-git', '--skip-po', '--force']
+      - args: ['./bootstrap']
 
   - name: binutils
     subdir: bundled
     git: 'https://github.com/bminor/binutils-gdb.git'
-    tag: 'binutils-2_38'
-    version: '2.38'
+    tag: 'binutils-2_40'
+    version: '2.40'
     tools_required:
       - host-automake-v1.16
+      - host-autoconf-v2.69
+    regenerate:
+      - args: ['autoreconf']
+        workdir: '@THIS_SOURCE_DIR@'
 
   - name: gcc
     subdir: bundled
@@ -162,8 +161,13 @@ tools:
           - '--target=@OPTION:arch-triple@'
           - '--disable-nls'
           - '--disable-werror'
+          - '--enable-gprofng=no'
+          - '--enable-gold=default'
+          - '--enable-ld=yes'
     compile:
-      - args: ['make', '-j@PARALLELISM@', 'all-binutils', 'all-gas', 'all-ld']
+      # binutils 2.40 does some weird makeinfo memes, and it needs somewhere to put the docs
+      - args: ['mkdir', '-p', '@THIS_BUILD_DIR@/gas/doc']
+      - args: ['make', '-j@PARALLELISM@', 'all-binutils', 'all-gas', 'all-ld', 'all-gold']
     install:
       - args: ['make', 'install-binutils', 'install-gas', 'install-ld']
 
