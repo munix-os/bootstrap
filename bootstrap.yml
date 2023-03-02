@@ -77,11 +77,12 @@ sources:
           '@BUILD_ROOT@/tools/host-automake-v1.16/share/automake-1.16/config.sub',
           '@THIS_SOURCE_DIR@/mpfr-4.1.0/config.sub']
 
-  - name: musl
-    subdir: ports
-    git: 'https://github.com/cleanbaja/musl.git'
-    branch: 'master'
-    version: '1.2.3-munix'
+  - name: mlibc
+    git: 'https://github.com/managarm/mlibc.git'
+    commit: '6d930d4539e784ab953ac44c8990c856f191d3ba'
+    branch: master
+    rolling_version: true
+    version: '0.0pl@ROLLING_ID@'
 
   - name: oksh
     subdir: ports
@@ -193,7 +194,7 @@ tools:
     stages:
       - name: compiler
         pkgs_required:
-          - musl-headers
+          - mlibc-headers
         compile:
           # GCC complains if the include directory is non-existant.
           - args: ['mkdir', '-p', '@SYSROOT_DIR@/usr/include']
@@ -239,7 +240,7 @@ tools:
     stages:
       - name: compiler
         pkgs_required:
-         - musl-headers
+         - mlibc-headers
         compile:
           # GCC complains if the include directory is non-existant.
           - args: ['mkdir', '-p', '@SYSROOT_DIR@/usr/include']
@@ -258,7 +259,7 @@ tools:
           - tool: host-gcc
             stage_dependencies: [compiler]
         pkgs_required:
-         - musl
+         - mlibc
         compile:
           - args: ['make', '-j@PARALLELISM@', 'all-target-libgcc']
         install:
@@ -274,34 +275,91 @@ tools:
           - args: ['make', 'install-target-libstdc++-v3']
 
 packages:
-  - name: musl
-    from_source: musl
-    implict_package: true
+  - name: mlibc-headers
+    from_source: mlibc
+    architecture: '@OPTION:arch@'
+    pkgs_required:
+      - linux-headers
+    configure:
+      - args:
+        - 'meson'
+        - 'setup'
+        - '--cross-file'
+        - '@SOURCE_ROOT@/build-support/meson-@OPTION:arch-triple@.cross'
+        - '--prefix=/usr'
+        - '@THIS_SOURCE_DIR@'
+        - '-Dheaders_only=true'
+        - '-Ddisable_crypt_option=true'
+        - '-Ddisable_iconv_option=true'
+        - '-Ddisable_intl_option=true'
+        - '-Dlinux_kernel_headers=@SYSROOT_DIR@/usr/src/linux-headers/include'
+    build:
+      - args: ['ninja']
+      - args: ['ninja', 'install']
+        environ:
+          DESTDIR: '@THIS_COLLECT_DIR@'
+        quiet: true
+
+  - name: linux-headers
+    architecture: '@OPTION:arch@'
+    source:
+      subdir: 'ports'
+      url: 'https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-6.1.8.tar.xz'
+      checksum: 'blake2b:1eeab95bf09757131031ebeaa3fb66f01626ecfe3b72d0044176613d027ac6643c688a0bb8f4493ae6faa3d3bf0c89fcdff3c28d7b8375e59ed6e8bd6d856e44'
+      extract_path: 'linux-6.1.8'
+      format: 'tar.xz'
+      version: '6.1.8'
+    configure:
+      - args: ['cp', '-Tr', '@THIS_SOURCE_DIR@', '.']
+    build:
+      - args: |
+          LINUX_ARCH="@OPTION:arch@"
+          case "$LINUX_ARCH" in
+            "aarch64")
+              LINUX_ARCH="arm64"
+              ;;
+            "riscv64")
+              LINUX_ARCH="riscv"
+              ;;
+          esac
+          make ARCH="$LINUX_ARCH" headers_install
+      - args: ['find', 'usr/include', '-type', 'f', '!', '-name', '*.h', '-delete']
+      - args: ['mkdir', '-p', '@THIS_COLLECT_DIR@/usr/src/linux-headers']
+      # remove this file, as mlibc will override this file with one suited to mlibc
+      - args: ['rm', 'usr/include/linux/libc-compat.h']
+      - args: ['cp', '-r', 'usr/include', '@THIS_COLLECT_DIR@/usr']
+      - args: ['cp', '-r', 'usr/include', '@THIS_COLLECT_DIR@/usr/src/linux-headers']
+
+  - name: mlibc
+    from_source: mlibc
+    architecture: '@OPTION:arch@'
     tools_required:
       - bootstrap-host-gcc
     pkgs_required:
-      - musl-headers
+      - linux-headers
+      - mlibc-headers
     configure:
-      - args: ['@THIS_SOURCE_DIR@/configure', '--prefix=/usr', '--target=@OPTION:arch-triple@']
+      - args:
+        - 'meson'
+        - 'setup'
+        - '--cross-file'
+        - '@SOURCE_ROOT@/build-support/meson-@OPTION:arch-triple@.cross'
+        - '--prefix=/usr'
+        - '--libdir=lib'
+        - '--buildtype=debugoptimized'
+        - '-Dmlibc_no_headers=true'
+        - '-Ddisable_crypt_option=true'
+        - '-Ddisable_iconv_option=true'
+        - '-Ddisable_intl_option=true'
+        - '-Dlinux_kernel_headers=@SYSROOT_DIR@/usr/src/linux-headers/include'
+        - '@THIS_SOURCE_DIR@'
     build:
-      - args: ['make', '-j@PARALLELISM@']
-      - args: ['make', 'install']
+      - args: ['ninja']
+      - args: ['ninja', 'install']
         environ:
           DESTDIR: '@THIS_COLLECT_DIR@'
         quiet: true
-      - args: ['cp', '@THIS_COLLECT_DIR@/usr/lib/crt1.o', '@THIS_COLLECT_DIR@/usr/lib/crt0.o']
-
-  - name: musl-headers
-    from_source: musl
-    implict_package: true
-    configure:
-      # leave out the target, so musl doesn't try to use the target gcc (which isn't built yet)
-      - args: ['@THIS_SOURCE_DIR@/configure', '--prefix=/usr']
-    build:
-      - args: ['make', 'install-headers']
-        environ:
-          DESTDIR: '@THIS_COLLECT_DIR@'
-        quiet: true
+      - args: ['ln', '-sf', 'crt0.o', '@THIS_COLLECT_DIR@/usr/lib/crt1.o']
 
   - name: oksh
     from_source: oksh

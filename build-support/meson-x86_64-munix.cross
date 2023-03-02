@@ -1,0 +1,12 @@
+[binaries]
+c = 'x86_64-munix-gcc'
+cpp = 'x86_64-munix-g++'
+ar = 'x86_64-munix-ar'
+strip = 'x86_64-munix-strip'
+pkgconfig = 'x86_64-munix-pkg-config'
+
+[host_machine]
+system = 'munix'
+cpu_family = 'x86_64'
+cpu = 'x86_64'
+endian = 'little'

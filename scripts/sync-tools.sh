@@ -17,5 +17,5 @@ if [ "x$2" == "x" ]; then
 	rm -rf "$filedir"
 else
 	echo "uploading tool $2"
-	scp $BUILD_DIR/tools/host-$2.tar.gz sigterm@mkall.org:/home/sigterm/.www/tools/
+	scp $BUILD_DIR/tools/$2.tar.gz sigterm@mkall.org:/home/sigterm/.www/tools/
 fi

@@ -1,2 +1,7 @@
 build
+
+# source dirs
 bundled
+mlibc
+munix
+ports
