@@ -1,3 +1,7 @@
+imports:
+  - file: bootstrap.d/sys-kernel.yml
+  - file: bootstrap.d/app-shells.yml
+
 sources:
   - name: autoconf-v2.69
     subdir: bundled
@@ -83,12 +87,6 @@ sources:
     branch: master
     rolling_version: true
     version: '0.0pl@ROLLING_ID@'
-
-  - name: oksh
-    subdir: ports
-    git: 'https://github.com/ibara/oksh.git'
-    tag: 'oksh-7.2'
-    version: '7.2'
 
 general:
     patch_author: The Munix Project
@@ -300,36 +298,6 @@ packages:
           DESTDIR: '@THIS_COLLECT_DIR@'
         quiet: true
 
-  - name: linux-headers
-    architecture: '@OPTION:arch@'
-    source:
-      subdir: 'ports'
-      url: 'https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-6.1.8.tar.xz'
-      checksum: 'blake2b:1eeab95bf09757131031ebeaa3fb66f01626ecfe3b72d0044176613d027ac6643c688a0bb8f4493ae6faa3d3bf0c89fcdff3c28d7b8375e59ed6e8bd6d856e44'
-      extract_path: 'linux-6.1.8'
-      format: 'tar.xz'
-      version: '6.1.8'
-    configure:
-      - args: ['cp', '-Tr', '@THIS_SOURCE_DIR@', '.']
-    build:
-      - args: |
-          LINUX_ARCH="@OPTION:arch@"
-          case "$LINUX_ARCH" in
-            "aarch64")
-              LINUX_ARCH="arm64"
-              ;;
-            "riscv64")
-              LINUX_ARCH="riscv"
-              ;;
-          esac
-          make ARCH="$LINUX_ARCH" headers_install
-      - args: ['find', 'usr/include', '-type', 'f', '!', '-name', '*.h', '-delete']
-      - args: ['mkdir', '-p', '@THIS_COLLECT_DIR@/usr/src/linux-headers']
-      # remove this file, as mlibc will override this file with one suited to mlibc
-      - args: ['rm', 'usr/include/linux/libc-compat.h']
-      - args: ['cp', '-r', 'usr/include', '@THIS_COLLECT_DIR@/usr']
-      - args: ['cp', '-r', 'usr/include', '@THIS_COLLECT_DIR@/usr/src/linux-headers']
-
   - name: mlibc
     from_source: mlibc
     architecture: '@OPTION:arch@'
@@ -360,22 +328,6 @@ packages:
           DESTDIR: '@THIS_COLLECT_DIR@'
         quiet: true
       - args: ['ln', '-sf', 'crt0.o', '@THIS_COLLECT_DIR@/usr/lib/crt1.o']
-
-  - name: oksh
-    from_source: oksh
-    tools_required:
-      - host-gcc
-    configure:
-      - args: ['cp', '@THIS_SOURCE_DIR@/oksh.1', '.']
-      - args: ['@THIS_SOURCE_DIR@/configure', '--disable-curses', '--prefix=/usr', '--no-thanks']
-        environ:
-          CC: '@OPTION:arch-triple@-gcc'
-    build:
-      - args: ['make', '-j@PARALLELISM@']
-      - args: ['make', 'install']
-        environ:
-          DESTDIR: '@THIS_COLLECT_DIR@'
-        quiet: true
 
   - name: util-munix
     source:

@@ -1,0 +1,26 @@
+packages:
+  - name: oksh
+    source:
+      subdir: 'ports'
+      #url: 'https://github.com/ibara/oksh/releases/download/oksh-7.2/oksh-7.2.tar.gz'
+      #extract_path: 'oksh-7.2'
+      #format: 'tar.gz'
+      git: 'https://github.com/ibara/oksh.git'
+      tag: 'oksh-7.2'
+      version: '7.2'
+    pkgs_required:
+      - mlibc
+    tools_required:
+      - host-gcc
+    configure:
+      - args: ['cp', '-Tr', '@THIS_SOURCE_DIR@', '.']
+      - args: ['@THIS_SOURCE_DIR@/configure', '--disable-curses', '--prefix=/usr', '--no-thanks']
+        environ:
+          CC: '@OPTION:arch-triple@-gcc'
+    build:
+      - args: ['make', '-j@PARALLELISM@']
+      - args: ['make', 'install']
+        environ:
+          DESTDIR: '@THIS_COLLECT_DIR@'
+        quiet: true
+

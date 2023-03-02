@@ -1,7 +1,8 @@
-build
+build/
+*.swp
 
 # source dirs
-bundled
-mlibc
-munix
-ports
+bundled/
+ports/
+/mlibc
+/munix

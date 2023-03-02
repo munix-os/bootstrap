@@ -1,0 +1,1005 @@
+From 70166906957bf819215ab4474a90f6d22654963c Mon Sep 17 00:00:00 2001
+From: cleanbaja <cleanbaja@protonmail.com>
+Date: Thu, 2 Mar 2023 17:42:07 +0000
+Subject: [PATCH] sysdeps: add munix port
+
+---
+ meson.build                                  |   4 +
+ sysdeps/munix/crt-x86_64/crt0.S              |   9 +
+ sysdeps/munix/generic/core.cpp               | 151 ++++++++++++
+ sysdeps/munix/generic/entry.cpp              |  35 +++
+ sysdeps/munix/include/abi-bits/access.h      |   1 +
+ sysdeps/munix/include/abi-bits/auxv.h        |   1 +
+ sysdeps/munix/include/abi-bits/blkcnt_t.h    |   1 +
+ sysdeps/munix/include/abi-bits/blksize_t.h   |   1 +
+ sysdeps/munix/include/abi-bits/clockid_t.h   |   1 +
+ sysdeps/munix/include/abi-bits/dev_t.h       |   1 +
+ sysdeps/munix/include/abi-bits/epoll.h       |   1 +
+ sysdeps/munix/include/abi-bits/errno.h       |   1 +
+ sysdeps/munix/include/abi-bits/fcntl.h       |   1 +
+ sysdeps/munix/include/abi-bits/fsblkcnt_t.h  |   1 +
+ sysdeps/munix/include/abi-bits/fsfilcnt_t.h  |   1 +
+ sysdeps/munix/include/abi-bits/gid_t.h       |   1 +
+ sysdeps/munix/include/abi-bits/in.h          |   1 +
+ sysdeps/munix/include/abi-bits/ino_t.h       |   1 +
+ sysdeps/munix/include/abi-bits/inotify.h     |   1 +
+ sysdeps/munix/include/abi-bits/ioctls.h      |   1 +
+ sysdeps/munix/include/abi-bits/limits.h      |   1 +
+ sysdeps/munix/include/abi-bits/linux         |   1 +
+ sysdeps/munix/include/abi-bits/mode_t.h      |   1 +
+ sysdeps/munix/include/abi-bits/mqueue.h      |   1 +
+ sysdeps/munix/include/abi-bits/nlink_t.h     |   1 +
+ sysdeps/munix/include/abi-bits/packet.h      |   1 +
+ sysdeps/munix/include/abi-bits/pid_t.h       |   1 +
+ sysdeps/munix/include/abi-bits/poll.h        |   1 +
+ sysdeps/munix/include/abi-bits/ptrace.h      |   1 +
+ sysdeps/munix/include/abi-bits/reboot.h      |   1 +
+ sysdeps/munix/include/abi-bits/resource.h    |   1 +
+ sysdeps/munix/include/abi-bits/seek-whence.h |   1 +
+ sysdeps/munix/include/abi-bits/shm.h         |   1 +
+ sysdeps/munix/include/abi-bits/signal.h      |   1 +
+ sysdeps/munix/include/abi-bits/socket.h      |   1 +
+ sysdeps/munix/include/abi-bits/socklen_t.h   |   1 +
+ sysdeps/munix/include/abi-bits/stat.h        |   1 +
+ sysdeps/munix/include/abi-bits/statfs.h      |   1 +
+ sysdeps/munix/include/abi-bits/statvfs.h     |   1 +
+ sysdeps/munix/include/abi-bits/suseconds_t.h |   1 +
+ sysdeps/munix/include/abi-bits/termios.h     |   1 +
+ sysdeps/munix/include/abi-bits/time.h        |   1 +
+ sysdeps/munix/include/abi-bits/uid_t.h       |   1 +
+ sysdeps/munix/include/abi-bits/utsname.h     |   1 +
+ sysdeps/munix/include/abi-bits/vm-flags.h    |   1 +
+ sysdeps/munix/include/abi-bits/vt.h          |   1 +
+ sysdeps/munix/include/abi-bits/wait.h        |   1 +
+ sysdeps/munix/include/abi-bits/xattr.h       |   1 +
+ sysdeps/munix/include/munix/syscall.h        | 231 +++++++++++++++++++
+ sysdeps/munix/meson.build                    |  72 ++++++
+ 50 files changed, 546 insertions(+)
+ create mode 100644 sysdeps/munix/crt-x86_64/crt0.S
+ create mode 100644 sysdeps/munix/generic/core.cpp
+ create mode 100644 sysdeps/munix/generic/entry.cpp
+ create mode 120000 sysdeps/munix/include/abi-bits/access.h
+ create mode 120000 sysdeps/munix/include/abi-bits/auxv.h
+ create mode 120000 sysdeps/munix/include/abi-bits/blkcnt_t.h
+ create mode 120000 sysdeps/munix/include/abi-bits/blksize_t.h
+ create mode 120000 sysdeps/munix/include/abi-bits/clockid_t.h
+ create mode 120000 sysdeps/munix/include/abi-bits/dev_t.h
+ create mode 120000 sysdeps/munix/include/abi-bits/epoll.h
+ create mode 120000 sysdeps/munix/include/abi-bits/errno.h
+ create mode 120000 sysdeps/munix/include/abi-bits/fcntl.h
+ create mode 120000 sysdeps/munix/include/abi-bits/fsblkcnt_t.h
+ create mode 120000 sysdeps/munix/include/abi-bits/fsfilcnt_t.h
+ create mode 120000 sysdeps/munix/include/abi-bits/gid_t.h
+ create mode 120000 sysdeps/munix/include/abi-bits/in.h
+ create mode 120000 sysdeps/munix/include/abi-bits/ino_t.h
+ create mode 120000 sysdeps/munix/include/abi-bits/inotify.h
+ create mode 120000 sysdeps/munix/include/abi-bits/ioctls.h
+ create mode 120000 sysdeps/munix/include/abi-bits/limits.h
+ create mode 120000 sysdeps/munix/include/abi-bits/linux
+ create mode 120000 sysdeps/munix/include/abi-bits/mode_t.h
+ create mode 120000 sysdeps/munix/include/abi-bits/mqueue.h
+ create mode 120000 sysdeps/munix/include/abi-bits/nlink_t.h
+ create mode 120000 sysdeps/munix/include/abi-bits/packet.h
+ create mode 120000 sysdeps/munix/include/abi-bits/pid_t.h
+ create mode 120000 sysdeps/munix/include/abi-bits/poll.h
+ create mode 120000 sysdeps/munix/include/abi-bits/ptrace.h
+ create mode 120000 sysdeps/munix/include/abi-bits/reboot.h
+ create mode 120000 sysdeps/munix/include/abi-bits/resource.h
+ create mode 120000 sysdeps/munix/include/abi-bits/seek-whence.h
+ create mode 120000 sysdeps/munix/include/abi-bits/shm.h
+ create mode 120000 sysdeps/munix/include/abi-bits/signal.h
+ create mode 120000 sysdeps/munix/include/abi-bits/socket.h
+ create mode 120000 sysdeps/munix/include/abi-bits/socklen_t.h
+ create mode 120000 sysdeps/munix/include/abi-bits/stat.h
+ create mode 120000 sysdeps/munix/include/abi-bits/statfs.h
+ create mode 120000 sysdeps/munix/include/abi-bits/statvfs.h
+ create mode 120000 sysdeps/munix/include/abi-bits/suseconds_t.h
+ create mode 120000 sysdeps/munix/include/abi-bits/termios.h
+ create mode 120000 sysdeps/munix/include/abi-bits/time.h
+ create mode 120000 sysdeps/munix/include/abi-bits/uid_t.h
+ create mode 120000 sysdeps/munix/include/abi-bits/utsname.h
+ create mode 120000 sysdeps/munix/include/abi-bits/vm-flags.h
+ create mode 120000 sysdeps/munix/include/abi-bits/vt.h
+ create mode 120000 sysdeps/munix/include/abi-bits/wait.h
+ create mode 120000 sysdeps/munix/include/abi-bits/xattr.h
+ create mode 100644 sysdeps/munix/include/munix/syscall.h
+ create mode 100644 sysdeps/munix/meson.build
+
+diff --git a/meson.build b/meson.build
+index 7dc495d2..8c644633 100644
+--- a/meson.build
++++ b/meson.build
+@@ -126,6 +126,10 @@ elif host_machine.system() == 'aero'
+ 	rtdl_include_dirs += include_directories('sysdeps/aero/include')
+ 	libc_include_dirs += include_directories('sysdeps/aero/include')
+ 	subdir('sysdeps/aero')
++elif host_machine.system() == 'munix'
++	rtdl_include_dirs += include_directories('sysdeps/munix/include')
++	libc_include_dirs += include_directories('sysdeps/munix/include')
++	subdir('sysdeps/munix')
+ elif host_machine.system() == 'managarm'
+ 	# TODO: Adopt the include_directories() commands from the managarm meson.build.
+ 	rtdl_include_dirs += include_directories('sysdeps/managarm/include')
+diff --git a/sysdeps/munix/crt-x86_64/crt0.S b/sysdeps/munix/crt-x86_64/crt0.S
+new file mode 100644
+index 00000000..57f0dd1f
+--- /dev/null
++++ b/sysdeps/munix/crt-x86_64/crt0.S
+@@ -0,0 +1,9 @@
++.section .text
++
++.global _start
++_start:
++    mov $main, %rdi
++    call __mlibc_entry
++
++.size _start, . - _start
++.section .note.GNU-stack,"",%progbits
+diff --git a/sysdeps/munix/generic/core.cpp b/sysdeps/munix/generic/core.cpp
+new file mode 100644
+index 00000000..963a2645
+--- /dev/null
++++ b/sysdeps/munix/generic/core.cpp
+@@ -0,0 +1,151 @@
++#include <mlibc/all-sysdeps.hpp>
++#include <munix/syscall.h>
++#include <errno.h>
++
++// macro to help with unimplemented functions
++#define UNIMP(func_name)                                          \
++    {                                                             \
++        sys_libc_log("syscall \"" func_name "()\" is a no-op!");  \
++        sys_exit(1);                                              \
++        __builtin_unreachable();                                  \
++    }
++
++namespace mlibc {
++    void sys_libc_log(const char *msg) {
++        syscall(SYS_log, msg);
++    }
++
++    void sys_libc_panic() {
++        sys_libc_log("libc panic!");
++
++        sys_exit(1);
++    }
++
++    void sys_exit(int status) {
++        syscall(SYS_exit, status);
++        __builtin_unreachable();
++    }
++
++    int sys_anon_allocate(size_t size, void **pointer) {
++        return sys_vm_map(nullptr, size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, 
++            -1, 0, pointer);
++    }
++
++    int sys_anon_free(void *pointer, size_t size) {
++        return sys_vm_unmap(pointer, size);
++    }
++
++    int sys_vm_map(void *hint, size_t size, int prot, int flags, int fd,
++               off_t offset, void **window) {
++        auto result = syscall(SYS_mmap, hint, size, prot, flags, fd, offset);
++
++        if (result < 0) {
++            return -result;
++        }
++
++        *window = (void *)result;
++        return 0;
++    }
++
++    int sys_vm_unmap(void *pointer, size_t size) {
++        auto result = syscall(SYS_munmap, pointer, size);
++
++        if (result < 0) {
++            return -result;
++        }
++
++        return 0;
++    }
++
++    int sys_tcb_set(void *pointer) {
++        auto result = syscall(SYS_arch_ctl, ARCH_SET_TLS, (uint64_t)pointer);
++
++        if (result < 0) {
++            return -result;
++        }
++
++        return 0;
++    }
++
++    int sys_futex_tid() {
++        // SYS_get_id can never fail.
++        return static_cast<int>(syscall(SYS_get_id, ID_TID));
++    }
++
++    int sys_futex_wait(int *pointer, int expected, const struct timespec *time) {
++        auto result = syscall(SYS_futex, FTX_WAIT, pointer, expected, time);
++
++        if (result < 0) {
++            return -result;
++        }
++
++        return 0;
++    }
++
++    int sys_futex_wake(int *pointer) {
++        auto result = syscall(SYS_futex, FTX_WAKE, pointer);
++
++        if (result < 0) {
++            return -result;
++        }
++
++        return 0;
++    }
++
++    int sys_open(const char *filepath, int flags, mode_t mode, int *fd) {
++        auto result = syscall(SYS_openat, AT_FDCWD, filepath, flags, mode);
++
++        if (result < 0) {
++            return -result;
++        }
++
++        *fd = result;
++        return 0;
++    }
++
++    int sys_close(int fd) {
++        auto result = syscall(SYS_close, fd);
++
++        if (result < 0) {
++            return -result;
++        }
++
++        return 0;
++    }
++
++    int sys_seek(int fd, off_t offset, int whence, off_t *new_off) {
++        auto result = syscall(SYS_lseek, fd, offset, whence);
++
++        if (result < 0) {
++            return -result;
++        }
++
++        *new_off = result;
++        return 0;
++    }
++
++    int sys_read(int fd, void *buf, size_t count, ssize_t *rdlen) {
++        auto result = syscall(SYS_read, fd, buf, count);
++
++        if (result < 0) {
++            *rdlen = 0;
++            return -result;
++        }
++
++        *rdlen = result;
++        return 0;
++    }
++
++    int sys_write(int fd, const void *buf, size_t count, ssize_t *wrlen) {
++        auto result = syscall(SYS_write, fd, buf, count);
++
++        if (result < 0) {
++            return -result;
++        }
++
++        *wrlen = result;
++        return 0;
++    }
++
++    int sys_clock_get(int clock, time_t *secs, long *nanos) UNIMP("sys_clock_get")
++}
+diff --git a/sysdeps/munix/generic/entry.cpp b/sysdeps/munix/generic/entry.cpp
+new file mode 100644
+index 00000000..dc01b2ca
+--- /dev/null
++++ b/sysdeps/munix/generic/entry.cpp
+@@ -0,0 +1,35 @@
++#include <bits/ensure.h>
++#include <mlibc/elf/startup.h>
++#include <stdint.h>
++#include <stdlib.h>
++
++// defined by the POSIX library
++void __mlibc_initLocale();
++
++extern "C" uintptr_t *__dlapi_entrystack();
++
++extern char **environ;
++static mlibc::exec_stack_data __mlibc_stack_data;
++
++struct LibraryGuard {
++    LibraryGuard();
++};
++
++static LibraryGuard guard;
++
++LibraryGuard::LibraryGuard() {
++    __mlibc_initLocale();
++
++    // Parse the exec() stack.
++    mlibc::parse_exec_stack(__dlapi_entrystack(), &__mlibc_stack_data);
++    mlibc::set_startup_data(__mlibc_stack_data.argc, __mlibc_stack_data.argv,
++                            __mlibc_stack_data.envp);
++}
++
++extern "C" void __mlibc_entry(int (*main_fn)(int argc, char *argv[],
++                                             char *env[])) {
++    // TODO: call __dlapi_enter, otherwise static builds will break (see Linux sysdeps)
++    auto result =
++        main_fn(__mlibc_stack_data.argc, __mlibc_stack_data.argv, environ);
++    exit(result);
++}
+diff --git a/sysdeps/munix/include/abi-bits/access.h b/sysdeps/munix/include/abi-bits/access.h
+new file mode 120000
+index 00000000..cb839316
+--- /dev/null
++++ b/sysdeps/munix/include/abi-bits/access.h
+@@ -0,0 +1 @@
++../../../../abis/linux/access.h
+\ No newline at end of file
+diff --git a/sysdeps/munix/include/abi-bits/auxv.h b/sysdeps/munix/include/abi-bits/auxv.h
+new file mode 120000
+index 00000000..c43f8786
+--- /dev/null
++++ b/sysdeps/munix/include/abi-bits/auxv.h
+@@ -0,0 +1 @@
++../../../../abis/linux/auxv.h
+\ No newline at end of file
+diff --git a/sysdeps/munix/include/abi-bits/blkcnt_t.h b/sysdeps/munix/include/abi-bits/blkcnt_t.h
+new file mode 120000
+index 00000000..0b0ec270
+--- /dev/null
++++ b/sysdeps/munix/include/abi-bits/blkcnt_t.h
+@@ -0,0 +1 @@
++../../../../abis/linux/blkcnt_t.h
+\ No newline at end of file
+diff --git a/sysdeps/munix/include/abi-bits/blksize_t.h b/sysdeps/munix/include/abi-bits/blksize_t.h
+new file mode 120000
+index 00000000..7dc8d7cf
+--- /dev/null
++++ b/sysdeps/munix/include/abi-bits/blksize_t.h
+@@ -0,0 +1 @@
++../../../../abis/linux/blksize_t.h
+\ No newline at end of file
+diff --git a/sysdeps/munix/include/abi-bits/clockid_t.h b/sysdeps/munix/include/abi-bits/clockid_t.h
+new file mode 120000
+index 00000000..6a42da56
+--- /dev/null
++++ b/sysdeps/munix/include/abi-bits/clockid_t.h
+@@ -0,0 +1 @@
++../../../../abis/linux/clockid_t.h
+\ No newline at end of file
+diff --git a/sysdeps/munix/include/abi-bits/dev_t.h b/sysdeps/munix/include/abi-bits/dev_t.h
+new file mode 120000
+index 00000000..bca881e9
+--- /dev/null
++++ b/sysdeps/munix/include/abi-bits/dev_t.h
+@@ -0,0 +1 @@
++../../../../abis/linux/dev_t.h
+\ No newline at end of file
+diff --git a/sysdeps/munix/include/abi-bits/epoll.h b/sysdeps/munix/include/abi-bits/epoll.h
+new file mode 120000
+index 00000000..eb4b76dc
+--- /dev/null
++++ b/sysdeps/munix/include/abi-bits/epoll.h
+@@ -0,0 +1 @@
++../../../../abis/linux/epoll.h
+\ No newline at end of file
+diff --git a/sysdeps/munix/include/abi-bits/errno.h b/sysdeps/munix/include/abi-bits/errno.h
+new file mode 120000
+index 00000000..6e507def
+--- /dev/null
++++ b/sysdeps/munix/include/abi-bits/errno.h
+@@ -0,0 +1 @@
++../../../../abis/linux/errno.h
+\ No newline at end of file
+diff --git a/sysdeps/munix/include/abi-bits/fcntl.h b/sysdeps/munix/include/abi-bits/fcntl.h
+new file mode 120000
+index 00000000..463e2c95
+--- /dev/null
++++ b/sysdeps/munix/include/abi-bits/fcntl.h
+@@ -0,0 +1 @@
++../../../../abis/linux/fcntl.h
+\ No newline at end of file
+diff --git a/sysdeps/munix/include/abi-bits/fsblkcnt_t.h b/sysdeps/munix/include/abi-bits/fsblkcnt_t.h
+new file mode 120000
+index 00000000..898dfb2f
+--- /dev/null
++++ b/sysdeps/munix/include/abi-bits/fsblkcnt_t.h
+@@ -0,0 +1 @@
++../../../../abis/linux/fsblkcnt_t.h
+\ No newline at end of file
+diff --git a/sysdeps/munix/include/abi-bits/fsfilcnt_t.h b/sysdeps/munix/include/abi-bits/fsfilcnt_t.h
+new file mode 120000
+index 00000000..791755c9
+--- /dev/null
++++ b/sysdeps/munix/include/abi-bits/fsfilcnt_t.h
+@@ -0,0 +1 @@
++../../../../abis/linux/fsfilcnt_t.h
+\ No newline at end of file
+diff --git a/sysdeps/munix/include/abi-bits/gid_t.h b/sysdeps/munix/include/abi-bits/gid_t.h
+new file mode 120000
+index 00000000..abce6d69
+--- /dev/null
++++ b/sysdeps/munix/include/abi-bits/gid_t.h
+@@ -0,0 +1 @@
++../../../../abis/linux/gid_t.h
+\ No newline at end of file
+diff --git a/sysdeps/munix/include/abi-bits/in.h b/sysdeps/munix/include/abi-bits/in.h
+new file mode 120000
+index 00000000..418d1d5c
+--- /dev/null
++++ b/sysdeps/munix/include/abi-bits/in.h
+@@ -0,0 +1 @@
++../../../../abis/linux/in.h
+\ No newline at end of file
+diff --git a/sysdeps/munix/include/abi-bits/ino_t.h b/sysdeps/munix/include/abi-bits/ino_t.h
+new file mode 120000
+index 00000000..4c20aca2
+--- /dev/null
++++ b/sysdeps/munix/include/abi-bits/ino_t.h
+@@ -0,0 +1 @@
++../../../../abis/linux/ino_t.h
+\ No newline at end of file
+diff --git a/sysdeps/munix/include/abi-bits/inotify.h b/sysdeps/munix/include/abi-bits/inotify.h
+new file mode 120000
+index 00000000..b5cb2823
+--- /dev/null
++++ b/sysdeps/munix/include/abi-bits/inotify.h
+@@ -0,0 +1 @@
++../../../../abis/linux/inotify.h
+\ No newline at end of file
+diff --git a/sysdeps/munix/include/abi-bits/ioctls.h b/sysdeps/munix/include/abi-bits/ioctls.h
+new file mode 120000
+index 00000000..595106b6
+--- /dev/null
++++ b/sysdeps/munix/include/abi-bits/ioctls.h
+@@ -0,0 +1 @@
++../../../../abis/linux/ioctls.h
+\ No newline at end of file
+diff --git a/sysdeps/munix/include/abi-bits/limits.h b/sysdeps/munix/include/abi-bits/limits.h
+new file mode 120000
+index 00000000..6c88db2e
+--- /dev/null
++++ b/sysdeps/munix/include/abi-bits/limits.h
+@@ -0,0 +1 @@
++../../../../abis/linux/limits.h
+\ No newline at end of file
+diff --git a/sysdeps/munix/include/abi-bits/linux b/sysdeps/munix/include/abi-bits/linux
+new file mode 120000
+index 00000000..3a430cd3
+--- /dev/null
++++ b/sysdeps/munix/include/abi-bits/linux
+@@ -0,0 +1 @@
++../../../../abis/linux/linux
+\ No newline at end of file
+diff --git a/sysdeps/munix/include/abi-bits/mode_t.h b/sysdeps/munix/include/abi-bits/mode_t.h
+new file mode 120000
+index 00000000..5d78fdfc
+--- /dev/null
++++ b/sysdeps/munix/include/abi-bits/mode_t.h
+@@ -0,0 +1 @@
++../../../../abis/linux/mode_t.h
+\ No newline at end of file
+diff --git a/sysdeps/munix/include/abi-bits/mqueue.h b/sysdeps/munix/include/abi-bits/mqueue.h
+new file mode 120000
+index 00000000..fa87b078
+--- /dev/null
++++ b/sysdeps/munix/include/abi-bits/mqueue.h
+@@ -0,0 +1 @@
++../../../../abis/linux/mqueue.h
+\ No newline at end of file
+diff --git a/sysdeps/munix/include/abi-bits/nlink_t.h b/sysdeps/munix/include/abi-bits/nlink_t.h
+new file mode 120000
+index 00000000..bb3b625c
+--- /dev/null
++++ b/sysdeps/munix/include/abi-bits/nlink_t.h
+@@ -0,0 +1 @@
++../../../../abis/linux/nlink_t.h
+\ No newline at end of file
+diff --git a/sysdeps/munix/include/abi-bits/packet.h b/sysdeps/munix/include/abi-bits/packet.h
+new file mode 120000
+index 00000000..998ef1ab
+--- /dev/null
++++ b/sysdeps/munix/include/abi-bits/packet.h
+@@ -0,0 +1 @@
++../../../../abis/linux/packet.h
+\ No newline at end of file
+diff --git a/sysdeps/munix/include/abi-bits/pid_t.h b/sysdeps/munix/include/abi-bits/pid_t.h
+new file mode 120000
+index 00000000..baa90f6a
+--- /dev/null
++++ b/sysdeps/munix/include/abi-bits/pid_t.h
+@@ -0,0 +1 @@
++../../../../abis/linux/pid_t.h
+\ No newline at end of file
+diff --git a/sysdeps/munix/include/abi-bits/poll.h b/sysdeps/munix/include/abi-bits/poll.h
+new file mode 120000
+index 00000000..8ea6a0a3
+--- /dev/null
++++ b/sysdeps/munix/include/abi-bits/poll.h
+@@ -0,0 +1 @@
++../../../../abis/linux/poll.h
+\ No newline at end of file
+diff --git a/sysdeps/munix/include/abi-bits/ptrace.h b/sysdeps/munix/include/abi-bits/ptrace.h
+new file mode 120000
+index 00000000..b2517b2c
+--- /dev/null
++++ b/sysdeps/munix/include/abi-bits/ptrace.h
+@@ -0,0 +1 @@
++../../../../abis/linux/ptrace.h
+\ No newline at end of file
+diff --git a/sysdeps/munix/include/abi-bits/reboot.h b/sysdeps/munix/include/abi-bits/reboot.h
+new file mode 120000
+index 00000000..77013a41
+--- /dev/null
++++ b/sysdeps/munix/include/abi-bits/reboot.h
+@@ -0,0 +1 @@
++../../../../abis/linux/reboot.h
+\ No newline at end of file
+diff --git a/sysdeps/munix/include/abi-bits/resource.h b/sysdeps/munix/include/abi-bits/resource.h
+new file mode 120000
+index 00000000..88d74025
+--- /dev/null
++++ b/sysdeps/munix/include/abi-bits/resource.h
+@@ -0,0 +1 @@
++../../../../abis/linux/resource.h
+\ No newline at end of file
+diff --git a/sysdeps/munix/include/abi-bits/seek-whence.h b/sysdeps/munix/include/abi-bits/seek-whence.h
+new file mode 120000
+index 00000000..df7bccf0
+--- /dev/null
++++ b/sysdeps/munix/include/abi-bits/seek-whence.h
+@@ -0,0 +1 @@
++../../../../abis/linux/seek-whence.h
+\ No newline at end of file
+diff --git a/sysdeps/munix/include/abi-bits/shm.h b/sysdeps/munix/include/abi-bits/shm.h
+new file mode 120000
+index 00000000..067d8c4f
+--- /dev/null
++++ b/sysdeps/munix/include/abi-bits/shm.h
+@@ -0,0 +1 @@
++../../../../abis/linux/shm.h
+\ No newline at end of file
+diff --git a/sysdeps/munix/include/abi-bits/signal.h b/sysdeps/munix/include/abi-bits/signal.h
+new file mode 120000
+index 00000000..4dcb0b7c
+--- /dev/null
++++ b/sysdeps/munix/include/abi-bits/signal.h
+@@ -0,0 +1 @@
++../../../../abis/linux/signal.h
+\ No newline at end of file
+diff --git a/sysdeps/munix/include/abi-bits/socket.h b/sysdeps/munix/include/abi-bits/socket.h
+new file mode 120000
+index 00000000..f1dc016e
+--- /dev/null
++++ b/sysdeps/munix/include/abi-bits/socket.h
+@@ -0,0 +1 @@
++../../../../abis/linux/socket.h
+\ No newline at end of file
+diff --git a/sysdeps/munix/include/abi-bits/socklen_t.h b/sysdeps/munix/include/abi-bits/socklen_t.h
+new file mode 120000
+index 00000000..41f3b11f
+--- /dev/null
++++ b/sysdeps/munix/include/abi-bits/socklen_t.h
+@@ -0,0 +1 @@
++../../../../abis/linux/socklen_t.h
+\ No newline at end of file
+diff --git a/sysdeps/munix/include/abi-bits/stat.h b/sysdeps/munix/include/abi-bits/stat.h
+new file mode 120000
+index 00000000..1f63b41f
+--- /dev/null
++++ b/sysdeps/munix/include/abi-bits/stat.h
+@@ -0,0 +1 @@
++../../../../abis/linux/stat.h
+\ No newline at end of file
+diff --git a/sysdeps/munix/include/abi-bits/statfs.h b/sysdeps/munix/include/abi-bits/statfs.h
+new file mode 120000
+index 00000000..e3d202f5
+--- /dev/null
++++ b/sysdeps/munix/include/abi-bits/statfs.h
+@@ -0,0 +1 @@
++../../../../abis/linux/statfs.h
+\ No newline at end of file
+diff --git a/sysdeps/munix/include/abi-bits/statvfs.h b/sysdeps/munix/include/abi-bits/statvfs.h
+new file mode 120000
+index 00000000..1fc80c2a
+--- /dev/null
++++ b/sysdeps/munix/include/abi-bits/statvfs.h
+@@ -0,0 +1 @@
++../../../../abis/linux/statvfs.h
+\ No newline at end of file
+diff --git a/sysdeps/munix/include/abi-bits/suseconds_t.h b/sysdeps/munix/include/abi-bits/suseconds_t.h
+new file mode 120000
+index 00000000..9ed65977
+--- /dev/null
++++ b/sysdeps/munix/include/abi-bits/suseconds_t.h
+@@ -0,0 +1 @@
++../../../../abis/linux/suseconds_t.h
+\ No newline at end of file
+diff --git a/sysdeps/munix/include/abi-bits/termios.h b/sysdeps/munix/include/abi-bits/termios.h
+new file mode 120000
+index 00000000..ee8f0b09
+--- /dev/null
++++ b/sysdeps/munix/include/abi-bits/termios.h
+@@ -0,0 +1 @@
++../../../../abis/linux/termios.h
+\ No newline at end of file
+diff --git a/sysdeps/munix/include/abi-bits/time.h b/sysdeps/munix/include/abi-bits/time.h
+new file mode 120000
+index 00000000..2a026257
+--- /dev/null
++++ b/sysdeps/munix/include/abi-bits/time.h
+@@ -0,0 +1 @@
++../../../../abis/linux/time.h
+\ No newline at end of file
+diff --git a/sysdeps/munix/include/abi-bits/uid_t.h b/sysdeps/munix/include/abi-bits/uid_t.h
+new file mode 120000
+index 00000000..b3067778
+--- /dev/null
++++ b/sysdeps/munix/include/abi-bits/uid_t.h
+@@ -0,0 +1 @@
++../../../../abis/linux/uid_t.h
+\ No newline at end of file
+diff --git a/sysdeps/munix/include/abi-bits/utsname.h b/sysdeps/munix/include/abi-bits/utsname.h
+new file mode 120000
+index 00000000..b2857547
+--- /dev/null
++++ b/sysdeps/munix/include/abi-bits/utsname.h
+@@ -0,0 +1 @@
++../../../../abis/linux/utsname.h
+\ No newline at end of file
+diff --git a/sysdeps/munix/include/abi-bits/vm-flags.h b/sysdeps/munix/include/abi-bits/vm-flags.h
+new file mode 120000
+index 00000000..bbe258cf
+--- /dev/null
++++ b/sysdeps/munix/include/abi-bits/vm-flags.h
+@@ -0,0 +1 @@
++../../../../abis/linux/vm-flags.h
+\ No newline at end of file
+diff --git a/sysdeps/munix/include/abi-bits/vt.h b/sysdeps/munix/include/abi-bits/vt.h
+new file mode 120000
+index 00000000..5798a4ac
+--- /dev/null
++++ b/sysdeps/munix/include/abi-bits/vt.h
+@@ -0,0 +1 @@
++../../../../abis/linux/vt.h
+\ No newline at end of file
+diff --git a/sysdeps/munix/include/abi-bits/wait.h b/sysdeps/munix/include/abi-bits/wait.h
+new file mode 120000
+index 00000000..feb2840c
+--- /dev/null
++++ b/sysdeps/munix/include/abi-bits/wait.h
+@@ -0,0 +1 @@
++../../../../abis/linux/wait.h
+\ No newline at end of file
+diff --git a/sysdeps/munix/include/abi-bits/xattr.h b/sysdeps/munix/include/abi-bits/xattr.h
+new file mode 120000
+index 00000000..66412d70
+--- /dev/null
++++ b/sysdeps/munix/include/abi-bits/xattr.h
+@@ -0,0 +1 @@
++../../../../abis/linux/xattr.h
+\ No newline at end of file
+diff --git a/sysdeps/munix/include/munix/syscall.h b/sysdeps/munix/include/munix/syscall.h
+new file mode 100644
+index 00000000..5ad617c6
+--- /dev/null
++++ b/sysdeps/munix/include/munix/syscall.h
+@@ -0,0 +1,231 @@
++#ifndef SYSCALL_H
++#define SYSCALL_H
++
++#define SYS_log	        			0
++#define SYS_exit				1
++#define SYS_mmap				2
++#define SYS_mprotect				3
++#define SYS_munmap				4
++#define SYS_openat				5
++#define SYS_read				6
++#define SYS_write				7
++#define SYS_close				8
++#define SYS_clone				9
++#define SYS_ioctl				10
++#define SYS_stat				11
++#define SYS_lseek				12
++#define SYS_arch_ctl				13
++#define SYS_fcntl				14
++#define SYS_getcwd				15
++#define SYS_rt_sigaction			15
++#define SYS_rt_sigprocmask			16
++#define SYS_rt_sigreturn			16
++#define SYS_get_id				17
++#define SYS_set_id				18
++#define SYS_futex				19
++#define SYS_access				20
++#define SYS_pipe				21
++#define SYS_select				22
++#define SYS_yield				23
++#define SYS_ppoll				24
++#define SYS_dup					25
++#define SYS_dup2				26
++#define SYS_fork				27
++#define SYS_kill				28
++#define SYS_execve				29
++#define SYS_ptrace				30
++#define SYS_socket				31
++#define SYS_connect				32
++#define SYS_accept				33
++#define SYS_bind				34
++#define SYS_listen				35
++#define SYS_recvfrom				36
++#define SYS_sendto				37
++#define SYS_recvmsg				38
++#define SYS_sendmsg				39
++#define SYS_sockname				40
++#define SYS_peername				41
++#define SYS_setsockopt				42
++#define SYS_getsockopt				43
++#define SYS_socketpair				44
++#define SYS_sockoff				45
++#define SYS_waitpid				46
++#define SYS_uname				47
++#define SYS_readv				48
++#define SYS_writev				49
++#define SYS_pread				50
++#define SYS_pwrite				51
++#define SYS_mremap				52
++#define SYS_pause				53
++#define SYS_chdir				54
++#define SYS_fchdir				55
++#define SYS_alarm				56
++#define SYS_getitimer				57
++#define SYS_setitimer				58
++#define SYS_getdents				60
++#define SYS_fallocate				61
++#define SYS_fadvise				62
++#define SYS_madvise				63
++#define SYS_pselect				64
++#define SYS_chmod				65
++#define SYS_fstatat				66
++#define SYS_mkdirat				67
++#define SYS_unlinkat				68
++#define SYS_renameat				69
++#define SYS_readlinkat				70
++#define SYS_linkat				71
++#define SYS_fchownat				72
++#define SYS_symlinkat				73
++#define SYS_sleep				74
++#define SYS_truncate				75
++
++
++// parameters to arch_ctl(2)
++#define ARCH_SET_TLS 0x1
++
++// parameters to futex(2)
++#define FTX_WAIT 0x1
++#define FTX_WAKE 0x2
++
++// parameters to get_id(2)/set_id(2)
++#define ID_PID 0x1
++#define ID_TID 0x2
++#define ID_UID 0x3
++#define ID_GID 0x4
++#define ID_SID 0x5
++#define ID_EGID 0x6
++#define ID_PGID 0x7
++#define ID_PPID 0x8
++
++extern "C" {
++using sc_word_t = long;
++
++static sc_word_t syscall0(int sc) {
++    sc_word_t ret;
++    asm volatile("syscall" : "=a"(ret) : "a"(sc) : "rcx", "r11", "memory");
++    return ret;
++}
++
++static sc_word_t syscall1(int sc, sc_word_t arg1) {
++    sc_word_t ret;
++    asm volatile("syscall"
++                 : "=a"(ret)
++                 : "a"(sc), "D"(arg1)
++                 : "rcx", "r11", "memory");
++    return ret;
++}
++
++static sc_word_t syscall2(int sc, sc_word_t arg1, sc_word_t arg2) {
++    sc_word_t ret;
++    asm volatile("syscall"
++                 : "=a"(ret)
++                 : "a"(sc), "D"(arg1), "S"(arg2)
++                 : "rcx", "r11", "memory");
++    return ret;
++}
++
++static sc_word_t syscall3(int sc, sc_word_t arg1, sc_word_t arg2,
++                          sc_word_t arg3) {
++    sc_word_t ret;
++    asm volatile("syscall"
++                 : "=a"(ret)
++                 : "a"(sc), "D"(arg1), "S"(arg2), "d"(arg3)
++                 : "rcx", "r11", "memory");
++    return ret;
++}
++
++static sc_word_t syscall4(int sc, sc_word_t arg1, sc_word_t arg2,
++                          sc_word_t arg3, sc_word_t arg4) {
++    sc_word_t ret;
++
++    register sc_word_t arg4_reg asm("r10") = arg4;
++
++    asm volatile("syscall"
++                 : "=a"(ret)
++                 : "a"(sc), "D"(arg1), "S"(arg2), "d"(arg3), "r"(arg4_reg)
++                 : "rcx", "r11", "memory");
++    return ret;
++}
++
++static sc_word_t syscall5(int sc, sc_word_t arg1, sc_word_t arg2,
++                          sc_word_t arg3, sc_word_t arg4, sc_word_t arg5) {
++    sc_word_t ret;
++
++    register sc_word_t arg4_reg asm("r10") = arg4;
++    register sc_word_t arg5_reg asm("r8") = arg5;
++
++    asm volatile("syscall"
++                 : "=a"(ret)
++                 : "a"(sc), "D"(arg1), "S"(arg2), "d"(arg3), "r"(arg4_reg),
++                   "r"(arg5_reg)
++                 : "rcx", "r11", "memory");
++    return ret;
++}
++
++static sc_word_t syscall6(int sc, sc_word_t arg1, sc_word_t arg2,
++                          sc_word_t arg3, sc_word_t arg4, sc_word_t arg5,
++                          sc_word_t arg6) {
++    sc_word_t ret;
++
++    register sc_word_t arg4_reg asm("r10") = arg4;
++    register sc_word_t arg5_reg asm("r8") = arg5;
++    register sc_word_t arg6_reg asm("r9") = arg6;
++
++    asm volatile("syscall"
++                 : "=a"(ret)
++                 : "a"(sc), "D"(arg1), "S"(arg2), "d"(arg3), "r"(arg4_reg),
++                   "r"(arg5_reg), "r"(arg6_reg)
++                 : "rcx", "r11", "memory");
++    return ret;
++}
++} // extern "C"
++
++__attribute__((always_inline)) inline sc_word_t sc_cast(long x) { return x; }
++__attribute__((always_inline)) inline sc_word_t sc_cast(const void *x) {
++    return reinterpret_cast<sc_word_t>(x);
++}
++
++__attribute__((always_inline)) static inline long _syscall(int call) {
++    return syscall0(call);
++}
++
++__attribute__((always_inline)) static inline long _syscall(int call,
++                                                           sc_word_t arg0) {
++    return syscall1(call, arg0);
++}
++
++__attribute__((always_inline)) static inline long
++_syscall(int call, sc_word_t arg0, sc_word_t arg1) {
++    return syscall2(call, arg0, arg1);
++}
++
++__attribute__((always_inline)) static inline long
++_syscall(int call, sc_word_t arg0, sc_word_t arg1, sc_word_t arg2) {
++    return syscall3(call, arg0, arg1, arg2);
++}
++
++__attribute__((always_inline)) static inline long
++_syscall(int call, sc_word_t arg0, sc_word_t arg1, sc_word_t arg2,
++         sc_word_t arg3) {
++    return syscall4(call, arg0, arg1, arg2, arg3);
++}
++
++__attribute__((always_inline)) static inline long
++_syscall(int call, sc_word_t arg0, sc_word_t arg1, sc_word_t arg2,
++         sc_word_t arg3, sc_word_t arg4) {
++    return syscall5(call, arg0, arg1, arg2, arg3, arg4);
++}
++
++__attribute__((always_inline)) static inline long
++_syscall(int call, sc_word_t arg0, sc_word_t arg1, sc_word_t arg2,
++         sc_word_t arg3, sc_word_t arg4, sc_word_t arg5) {
++    return syscall6(call, arg0, arg1, arg2, arg3, arg4, arg5);
++}
++
++template <typename... T>
++__attribute__((always_inline)) static inline long syscall(sc_word_t call,
++                                                          T... args) {
++    return _syscall(call, sc_cast(args)...);
++}
++
++#endif // SYSCALL_H
+diff --git a/sysdeps/munix/meson.build b/sysdeps/munix/meson.build
+new file mode 100644
+index 00000000..dbeb4a52
+--- /dev/null
++++ b/sysdeps/munix/meson.build
+@@ -0,0 +1,72 @@
++rtdl_dso_sources += files(
++	'generic/core.cpp',
++)
++
++libc_sources += files(
++	'generic/core.cpp',
++	'generic/entry.cpp'
++)
++
++if not no_headers
++	install_headers(
++		'include/abi-bits/auxv.h',
++		'include/abi-bits/seek-whence.h',
++		'include/abi-bits/vm-flags.h',
++		'include/abi-bits/errno.h',
++		'include/abi-bits/fcntl.h',
++		'include/abi-bits/in.h',
++		'include/abi-bits/resource.h',
++		'include/abi-bits/signal.h',
++		'include/abi-bits/stat.h',
++		'include/abi-bits/socket.h',
++		'include/abi-bits/termios.h',
++		'include/abi-bits/time.h',
++		'include/abi-bits/blkcnt_t.h',
++		'include/abi-bits/blksize_t.h',
++		'include/abi-bits/dev_t.h',
++		'include/abi-bits/gid_t.h',
++		'include/abi-bits/ino_t.h',
++		'include/abi-bits/mode_t.h',
++		'include/abi-bits/nlink_t.h',
++		'include/abi-bits/pid_t.h',
++		'include/abi-bits/uid_t.h',
++		'include/abi-bits/access.h',
++		'include/abi-bits/wait.h',
++		'include/abi-bits/limits.h',
++		'include/abi-bits/utsname.h',
++		'include/abi-bits/ptrace.h',
++		'include/abi-bits/poll.h',
++		'include/abi-bits/epoll.h',
++		'include/abi-bits/packet.h',
++		'include/abi-bits/inotify.h',
++		'include/abi-bits/clockid_t.h',
++		'include/abi-bits/shm.h',
++		'include/abi-bits/mqueue.h',
++		'include/abi-bits/suseconds_t.h',
++		'include/abi-bits/fsfilcnt_t.h',
++		'include/abi-bits/fsblkcnt_t.h',
++		'include/abi-bits/socklen_t.h',
++		'include/abi-bits/statfs.h',
++		'include/abi-bits/statvfs.h',
++		'include/abi-bits/ioctls.h',
++		'include/abi-bits/xattr.h',
++		subdir: 'abi-bits'
++	)
++	install_headers(
++		'include/munix/syscall.h',
++		subdir: 'munix'
++	)
++endif
++
++
++if not headers_only
++	crt = custom_target('crt0',
++		build_by_default: true,
++		command: c_compiler.cmd_array() + ['-c', '-o', '@OUTPUT@', '@INPUT@'],
++		input: 'crt-x86_64/crt0.S',
++		output: 'crt0.o',
++		install: true,
++		install_dir: get_option('libdir')
++	)
++endif
++
+-- 
+2.36.3
+
