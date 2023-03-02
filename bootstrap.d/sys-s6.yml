@@ -1,0 +1,26 @@
+packages:
+  - name: skalibs
+    source:
+      subdir: 'ports'
+      url: 'https://github.com/skarnet/skalibs/archive/refs/tags/v2.13.1.0.tar.gz'
+      checksum: 'blake2b:ef5969205aa5933f9a071466822b4f1107ecd5cfd67d4382821850f787c408c4848be42a619be943b03d1911583c5eca28159bb495225f5293c5e55f3164ddb9'
+      format: 'tar.gz'
+      patch-path-strip: 1
+      extract_path: 'skalibs-2.13.1.0'
+      version: '2.13.1.0'
+    pkgs_required:
+      - mlibc
+    tools_required:
+      - host-gcc
+    configure:
+      - args: ['cp', '-Tr', '@THIS_SOURCE_DIR@', '.']
+      - args:
+        - './configure'
+        - '--target=@OPTION:arch-triple@'
+        - '--with-sysdep-devurandom=yes'
+    build:
+      - args: ['make', '-j@PARALLELISM@']
+    install:
+      - args: ['make', 'install']
+        quiet: true
+

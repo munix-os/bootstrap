@@ -1,0 +1,52 @@
+From 5e07a5efdff2d6b20b861be43f8f0d40fd4b656a Mon Sep 17 00:00:00 2001
+From: cleanbaja <cleanbaja@protonmail.com>
+Date: Thu, 2 Mar 2023 18:14:49 +0000
+Subject: [PATCH] fix pointer arithmatic
+
+---
+ src/libstddjb/cdbmake.c                 | 1 +
+ src/libunixonacid/ancil_recv_fd.c       | 2 +-
+ src/libunixonacid/unixmessage_receive.c | 2 +-
+ 3 files changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/src/libstddjb/cdbmake.c b/src/libstddjb/cdbmake.c
+index 4cc4fc8..1e1e3fc 100644
+--- a/src/libstddjb/cdbmake.c
++++ b/src/libstddjb/cdbmake.c
+@@ -2,6 +2,7 @@
+ 
+ #include <unistd.h>
+ #include <stdint.h>
++#include <fcntl.h>
+ #include <errno.h>
+ 
+ #include <skalibs/uint32.h>
+diff --git a/src/libunixonacid/ancil_recv_fd.c b/src/libunixonacid/ancil_recv_fd.c
+index 5ecbb31..1b8c241 100644
+--- a/src/libunixonacid/ancil_recv_fd.c
++++ b/src/libunixonacid/ancil_recv_fd.c
+@@ -59,7 +59,7 @@ int ancil_recv_fd (int sock, char expected_ch)
+    || !c
+    || c->cmsg_level != SOL_SOCKET
+    || c->cmsg_type != SCM_RIGHTS
+-   || (size_t)(c->cmsg_len - (CMSG_DATA(c) - (unsigned char *)c)) != sizeof(int)) return (errno = EPROTO, -1) ;
++   || (size_t)(c->cmsg_len - (CMSG_DATA(c) - (char *)c)) != sizeof(int)) return (errno = EPROTO, -1) ;
+   memcpy(&fd, CMSG_DATA(c), sizeof(int)) ;
+ #ifndef SKALIBS_HASCMSGCLOEXEC
+   if (coe(fd) < 0)
+diff --git a/src/libunixonacid/unixmessage_receive.c b/src/libunixonacid/unixmessage_receive.c
+index c3e1107..d89c506 100644
+--- a/src/libunixonacid/unixmessage_receive.c
++++ b/src/libunixonacid/unixmessage_receive.c
+@@ -67,7 +67,7 @@ static int unixmessage_receiver_fill (unixmessage_receiver *b)
+       size_t auxlen ;
+       if (c->cmsg_level != SOL_SOCKET
+        || c->cmsg_type != SCM_RIGHTS) return (errno = EPROTO, -1) ;
+-      auxlen = (size_t)(c->cmsg_len - (CMSG_DATA(c) - (unsigned char *)c)) ;
++      auxlen = (size_t)(c->cmsg_len - (CMSG_DATA(c) - (char *)c)) ;
+       if (auxlen && !(b->fds_ok & 2))
+       {
+         size_t i = auxlen / sizeof(int) ;
+-- 
+2.36.3
+

@@ -1,6 +1,7 @@
 imports:
-  - file: bootstrap.d/sys-kernel.yml
   - file: bootstrap.d/app-shells.yml
+  - file: bootstrap.d/sys-kernel.yml
+  - file: bootstrap.d/sys-s6.yml
 
 sources:
   - name: autoconf-v2.69
