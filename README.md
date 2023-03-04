@@ -1,6 +1,9 @@
 # Bootstrap: Munix Distribution Scripts
 
 This repository contains scripts and files necessary to create a functioning munix install.
+For any questions you may have, or help with setting up a build, ask for help in the below discord server.
+
+**Official Discord Server:** https://discord.gg/RPpQsG3JH7
 
 ## Building
 
